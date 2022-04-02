@@ -1,18 +1,14 @@
 defmodule PerudoCord do
+  use Application
+
   @moduledoc """
   Documentation for `PerudoCord`.
   """
 
-  @doc """
-  Hello world.
+  def start(_type, _args) do
+    children = [PerudoCord.Supervisor]
 
-  ## Examples
-
-      iex> PerudoCord.hello()
-      :world
-
-  """
-  def hello do
-    :world
+    opts = [strategy: :one_for_one]
+    Supervisor.start_link(children, opts)
   end
 end
