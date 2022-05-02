@@ -5,5 +5,6 @@ config :nostrum,
   gateway_intents: [
     :guilds,
     :guild_members,
-    :guild_messages
+    :guild_messages,
+    :guild_message_reactions
   ]

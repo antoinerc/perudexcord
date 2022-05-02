@@ -1,4 +1,4 @@
-defmodule PerudoCord.Supervisor do
+defmodule PerudoCord.Supervisors.ConsumerSupervisor do
   use Supervisor
 
   def start_link(args) do

@@ -1,11 +1,11 @@
 defmodule PerudoCord.ExampleConsumer do
   use Nostrum.Consumer
-  @behaviour Perudo.NotifierServer
 
   alias Nostrum.Api
-  alias Nostrum.Struct.User
   alias Nostrum.Struct.Guild.Member
   alias Nostrum.Cache.ChannelCache
+
+  alias PerudoCord.{Games}
 
   def start_link do
     Consumer.start_link(__MODULE__)
@@ -20,8 +20,11 @@ defmodule PerudoCord.ExampleConsumer do
              true <- channel.type == 0,
              {:ok, parsed_args} <-
                parse_required_args(tl(message_content), [name: :string], n: :name),
-             {:ok, thread} <- create_game_thread(msg.channel_id, parsed_args[:name]) do
-          ChannelCache.create(thread)
+             {:ok, invitation} <-
+               create_game_invitation(msg.channel_id, msg, parsed_args[:name], %Member{
+                 user: msg.author
+               }) do
+          Games.create(invitation.id, msg.author.id, parsed_args[:name])
         else
           {:error, :no_parsed_args} ->
             reply(
@@ -32,75 +35,55 @@ defmodule PerudoCord.ExampleConsumer do
           _ ->
             reply(msg, "Unable to create a game at the moment.")
         end
-
-      "!start" ->
-        with {:ok, channel} <- get_game_thread(msg.channel_id),
-             {:ok, thread_members} <- Api.get_thread_members(channel.id) do
-          players = get_players_specs(channel.id, thread_members)
-
-          Perudo.Supervisors.MainSupervistor.create_game(msg.channel_id, players)
-        else
-          _ ->
-            reply(msg, "Unable to start game in current channel.")
-        end
-
-      "!dudo" ->
-        Api.create_message(msg.channel_id, "#{%Member{user: msg.author}} called dudo!")
-
-      "!calza" ->
-        Api.create_message(msg.channel_id, "#{%Member{user: msg.author}} called calza!")
-
-      "!outbid" ->
-        case OptionParser.parse(tl(message_content),
-               strict: [count: :integer, die: :integer],
-               aliases: [c: :count, d: :die]
-             ) do
-          {[{:count, count}, {:die, die}], _, _} ->
-            Api.create_message(
-              msg.channel_id,
-              "#{%Member{user: msg.author}} raised the bid to #{count} x #{die}!"
-            )
-
-          {_, _, _} ->
-            Api.create_message(
-              msg.channel_id,
-              "#{%Member{user: msg.author}} invalid outbid command. Please include --count and --die arguments."
-            )
-        end
-
       _ ->
         :ignore
     end
   end
 
   def handle_event(
-        {:THREAD_MEMBERS_UPDATE,
-         %{removed_member_ids: nil, added_members: added_members, id: channel_id}, _ws_state}
+        {:MESSAGE_REACTION_ADD,
+         %Nostrum.Struct.Event.MessageReactionAdd{
+           message_id: game_id,
+           user_id: user_id,
+           emoji: %Nostrum.Struct.Emoji{name: "👍"}
+         }, _ws_state}
       ) do
-    {:ok, channel} = ChannelCache.get(channel_id)
+    Games.add_player(game_id, user_id)
+  end
 
-    Enum.map(added_members, fn x ->
-      Api.create_message(x.id, "#{%Member{user: %User{id: x.user_id}}} joined game #{channel}")
-    end)
+  def handle_event(
+        {:MESSAGE_REACTION_REMOVE,
+         %Nostrum.Struct.Event.MessageReactionRemove{
+           message_id: game_id,
+           user_id: user_id,
+           emoji: %Nostrum.Struct.Emoji{name: "👍"}
+         }, _ws_state}
+      ) do
+    Games.remove_player(game_id, user_id)
+  end
+
+  def handle_event(
+        {:MESSAGE_REACTION_ADD,
+         %Nostrum.Struct.Event.MessageReactionAdd{
+           channel_id: channel_id,
+           message_id: game_id,
+           user_id: user_id,
+           emoji: %Nostrum.Struct.Emoji{name: "❌"} = emoji
+         }, _ws_state}
+      ) do
+    case Games.delete(game_id, user_id) do
+      :ok ->
+        Api.delete_message(channel_id, game_id)
+
+      {:error, _} ->
+        Api.delete_reaction(channel_id, game_id, emoji)
+    end
   end
 
   # Default event handler, if you don't include this, your consumer WILL crash if
   # you don't have a method definition for each event type.
   def handle_event(_event) do
     :noop
-  end
-
-  defp get_game_thread(channel_id) do
-    case get_channel(channel_id) do
-      {:ok, channel} when channel.type == 11 ->
-        {:ok, channel}
-
-      {:ok, _} ->
-        {:error, :wrong_channel_type}
-
-      error ->
-        error
-    end
   end
 
   defp get_channel(channel_id) do
@@ -127,12 +110,18 @@ defmodule PerudoCord.ExampleConsumer do
     end
   end
 
-  defp create_game_thread(channel_id, game_name) do
-    Api.start_thread(channel_id, %{
-      name: game_name,
-      type: 11,
-      auto_archive_duration: 1440
-    })
+  defp create_game_invitation(
+         channel_id,
+         %Nostrum.Struct.Message{id: original_message_id},
+         game_name,
+         creator
+       ) do
+    Api.delete_message(channel_id, original_message_id)
+
+    Api.create_message(
+      channel_id,
+      "#{creator} is creating game #{game_name}. #{%Nostrum.Struct.Emoji{name: ":thumbsup:"}} this post to be included!\n Creator can react with #{%Nostrum.Struct.Emoji{name: ":arrow_forward:"}} to start the game or #{%Nostrum.Struct.Emoji{name: "❌"}} to cancel."
+    )
   end
 
   defp get_players_specs(game_id, thread_members) do
@@ -148,27 +137,6 @@ defmodule PerudoCord.ExampleConsumer do
       game_id,
       "Game #{%Nostrum.Struct.Channel{id: game_id}} is starting. Players: #{Enum.map(players, fn p -> "#{%Nostrum.Struct.User{id: p}}" end)}"
     )
-  end
-
-  def new_hand(game_id, player_id, hand) do
-    {:ok, dm} = Api.create_dm(player_id)
-    {:ok, channel} = get_channel(game_id)
-
-    Api.create_message(
-      dm.id,
-      "Your new hand for game #{channel} is #{Enum.join(hand.dice, ", ")}."
-    )
-  end
-
-  def move(game_id, player_id) do
-    Api.create_message(
-      game_id,
-      "It is now #{%Nostrum.Struct.User{id: player_id}} turn to play."
-    )
-  end
-
-  def reveal_player_hands(game_id, hands) do
-    IO.inspect(hands)
   end
 
   defp player_spec(game_id, player_id) do
