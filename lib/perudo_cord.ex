@@ -9,7 +9,8 @@ defmodule PerudoCord do
     children = [
       PerudoCord.GameRegistry.child_spec(),
       PerudoCord.Supervisors.ConsumerSupervisor,
-      PerudoCord.Supervisors.GameSupervisor
+      PerudoCord.Supervisors.GameSupervisor,
+      PerudoCord.Supervisors.InteractiveMessageSupervisor
     ]
 
     opts = [strategy: :one_for_one]
