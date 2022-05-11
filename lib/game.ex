@@ -14,14 +14,12 @@ defmodule PerudoCord.Game do
           game_name: game_name,
           creator_id: discord_user_id,
           players: [discord_user_id],
-          latest_players_communications: [player_communication]
         }
 
   @type game_id :: any
   @type message_id :: any
   @type game_name :: String.t()
   @type discord_user_id :: any
-  @type player_communication :: {discord_user_id, message_id}
 
   @spec create(game_id, discord_user_id, game_name) :: PerudoCord.Game.t()
   def create(id, creator_id, game_name) do

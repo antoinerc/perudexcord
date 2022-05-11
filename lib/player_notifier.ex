@@ -51,4 +51,8 @@ defmodule PerudoCord.PlayerNotifier do
 
   def winner(game_id, player_id, winner_id) do
   end
+
+  def player_spec(game_id, player_id) do
+    %{id: player_id, callback_mod: __MODULE__, callback_arg: game_id}
+  end
 end

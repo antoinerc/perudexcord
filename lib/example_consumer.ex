@@ -48,6 +48,7 @@ defmodule PerudoCord.ExampleConsumer do
            emoji: %Nostrum.Struct.Emoji{name: "👍"}
          }, _ws_state}
       ) do
+
     Games.add_player(game_id, user_id)
   end
 
@@ -60,6 +61,24 @@ defmodule PerudoCord.ExampleConsumer do
          }, _ws_state}
       ) do
     Games.remove_player(game_id, user_id)
+  end
+
+  def handle_event(
+        {:MESSAGE_REACTION_ADD,
+         %Nostrum.Struct.Event.MessageReactionAdd{
+           channel_id: channel_id,
+           message_id: game_id,
+           user_id: user_id,
+           emoji: %Nostrum.Struct.Emoji{name: "▶️"} = emoji
+         }, _ws_state}
+      ) do
+    case Games.start(game_id, user_id) do
+      :ok ->
+        Api.delete_message(channel_id, game_id)
+
+      {:error, _} ->
+        Api.delete_reaction(channel_id, game_id, emoji)
+    end
   end
 
   def handle_event(
@@ -124,22 +143,10 @@ defmodule PerudoCord.ExampleConsumer do
     )
   end
 
-  defp get_players_specs(game_id, thread_members) do
-    bot = Nostrum.Cache.Me.get()
-
-    thread_members
-    |> Enum.filter(fn player -> player.user_id != bot.id end)
-    |> Enum.map(fn player -> player_spec(game_id, player.user_id) end)
-  end
-
   def start_game(game_id, players) do
     Api.create_message(
       game_id,
       "Game #{%Nostrum.Struct.Channel{id: game_id}} is starting. Players: #{Enum.map(players, fn p -> "#{%Nostrum.Struct.User{id: p}}" end)}"
     )
-  end
-
-  defp player_spec(game_id, player_id) do
-    %{id: player_id, callback_mod: __MODULE__, callback_arg: game_id}
   end
 end

@@ -7,6 +7,16 @@ defmodule PerudoCord.Games do
     game
   end
 
+  def start(game_id, player_id) do
+    game_id
+    |> GameRegistry.lookup_game()
+    |> case do
+      {:ok, pid} -> GenServer.call(pid, {:start, player_id})
+      error -> error
+    end
+  end
+
+  @spec delete(Game.game_id, Game.discord_user_id) :: :ok | {:error, atom}
   def delete(game_id, issued_by) do
     game_id
     |> GameRegistry.lookup_game()
@@ -16,7 +26,7 @@ defmodule PerudoCord.Games do
     end
   end
 
-  @spec add_player(any, any) :: any
+  @spec add_player(Game.game_id, Game.discord_user_id) :: any
   def add_player(game_id, player_id) do
     game_id
     |> GameRegistry.lookup_game()

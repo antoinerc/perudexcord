@@ -1,7 +1,8 @@
 defmodule PerudoCord.GameProcess do
   use GenServer, restart: :transient
 
-  alias PerudoCord.Game
+  alias PerudoCord.{Game, PlayerNotifier}
+  alias Perudex.Supervisors.MainSupervisor
 
   def start_link(%Game{} = game),
     do: GenServer.start_link(__MODULE__, game, name: service_name(game))
@@ -28,6 +29,20 @@ defmodule PerudoCord.GameProcess do
 
   @impl true
   def handle_call({:delete, _}, _from, %Game{} = state) do
+    {:reply, {:error, :unauthorized}, state}
+  end
+
+  @impl true
+  def handle_call({:start, issued_by}, _from, %Game{creator_id: issued_by} = state) do
+    MainSupervisor.create_game(
+      state.id,
+      Enum.map(state.players, fn p -> PlayerNotifier.player_spec(state.id, p) end)
+    )
+    {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call({:start, issued_by}, _from, %Game{creator_id: issued_by} = state) do
     {:reply, {:error, :unauthorized}, state}
   end
 

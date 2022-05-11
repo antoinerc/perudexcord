@@ -23,7 +23,7 @@ defmodule PerudoCord.MixProject do
   defp deps do
     [
       {:nostrum, "~> 0.5.1"},
-      {:perudex, "~> 0.1.0"},
+      {:perudex, "~> 0.2.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:uuid, "~> 1.1"}
     ]
