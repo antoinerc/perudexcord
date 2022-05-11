@@ -6,14 +6,13 @@ defmodule PerudoCord.Game do
     :game_name,
     :creator_id,
     :players,
-    :latest_players_communications
   ]
 
   @type t :: %Game{
           id: game_id,
           game_name: game_name,
           creator_id: discord_user_id,
-          players: [discord_user_id],
+          players: [discord_user_id]
         }
 
   @type game_id :: any
@@ -27,8 +26,7 @@ defmodule PerudoCord.Game do
       id: id,
       creator_id: creator_id,
       game_name: game_name,
-      players: [creator_id],
-      latest_players_communications: []
+      players: [creator_id]
     }
   end
 
