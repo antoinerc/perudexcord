@@ -38,6 +38,7 @@ defmodule PerudoCord.GameProcess do
       state.id,
       Enum.map(state.players, fn p -> PlayerNotifier.player_spec(state.id, p) end)
     )
+
     {:reply, :ok, state}
   end
 

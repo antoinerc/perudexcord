@@ -5,7 +5,7 @@ defmodule PerudoCord.Game do
     :id,
     :game_name,
     :creator_id,
-    :players,
+    :players
   ]
 
   @type t :: %Game{

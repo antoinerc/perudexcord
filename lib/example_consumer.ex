@@ -35,6 +35,7 @@ defmodule PerudoCord.ExampleConsumer do
           _ ->
             reply(msg, "Unable to create a game at the moment.")
         end
+
       _ ->
         :ignore
     end
@@ -48,7 +49,6 @@ defmodule PerudoCord.ExampleConsumer do
            emoji: %Nostrum.Struct.Emoji{name: "👍"}
          }, _ws_state}
       ) do
-
     Games.add_player(game_id, user_id)
   end
 

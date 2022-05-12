@@ -24,7 +24,9 @@ defmodule PerudoCord.InteractiveMessageHistory do
 
   @impl true
   def handle_call({:insert, player_id, message_id, game_id}, _from, state) do
-    new_state = Map.put(state, player_id, %InteractiveMessage{message_id: message_id, game_id: game_id})
+    new_state =
+      Map.put(state, player_id, %InteractiveMessage{message_id: message_id, game_id: game_id})
+
     {:reply, new_state[player_id], new_state}
   end
 end
