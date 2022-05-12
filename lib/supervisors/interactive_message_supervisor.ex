@@ -8,7 +8,7 @@ defmodule PerudoCord.Supervisors.InteractiveMessageSupervisor do
   @impl true
   def init(_opts) do
     children = [
-      {PerudoCord.InteractiveMessageHistory, []}
+      PerudoCord.InteractiveMessageHistory
     ]
     Supervisor.init(children, strategy: :one_for_one)
   end

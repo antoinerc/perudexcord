@@ -46,5 +46,10 @@ defmodule PerudoCord.GameProcess do
     {:reply, {:error, :unauthorized}, state}
   end
 
+  @impl true
+  def handle_call(:get, _from, %Game{} = state) do
+    {:reply, state, state}
+  end
+
   defp service_name(%Game{id: game_id}), do: PerudoCord.service_name(game_id)
 end

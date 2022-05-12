@@ -7,6 +7,15 @@ defmodule PerudoCord.Games do
     game
   end
 
+  def get(game_id) do
+    game_id
+    |> GameRegistry.lookup_game()
+    |> case do
+      {:ok, pid} -> GenServer.call(pid, :get)
+      error -> error
+    end
+  end
+
   def start(game_id, player_id) do
     game_id
     |> GameRegistry.lookup_game()

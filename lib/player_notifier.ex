@@ -2,6 +2,7 @@ defmodule PerudoCord.PlayerNotifier do
   @behaviour Perudex.NotifierServer
 
   alias Nostrum.Api
+  alias PerudoCord.{Games, Game, InteractiveMessageHistory}
 
   def illegal_move(game_id, player_id) do
   end
@@ -26,11 +27,16 @@ defmodule PerudoCord.PlayerNotifier do
 
   def start_game(game_id, player_id, participating_players) do
     {:ok, dm_channel} = Api.create_dm(player_id)
-
-    Api.create_message(
+    %Game{game_name: name} = Games.get(game_id)
+    case Api.create_message(
       dm_channel.id,
-      "Game #{game_id} has started! Players: #{Enum.map(participating_players, fn p -> "#{%Nostrum.Struct.User{id: p}}" end)}"
-    )
+      "Game #{name} has started! Players: #{Enum.map(participating_players, fn p -> "#{%Nostrum.Struct.User{id: p}}" end)}"
+    ) do
+      {:ok, message} ->
+        InteractiveMessageHistory.insert(player_id, message.id, game_id)
+        |> IO.inspect()
+      error -> error
+    end
   end
 
   def successful_dudo(game_id, player_id) do
