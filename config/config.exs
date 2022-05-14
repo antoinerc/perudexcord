@@ -6,5 +6,7 @@ config :nostrum,
     :guilds,
     :guild_members,
     :guild_messages,
-    :guild_message_reactions
+    :guild_message_reactions,
+    :direct_messages,
+    :direct_message_reactions
   ]

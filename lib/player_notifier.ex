@@ -74,8 +74,8 @@ defmodule PerudoCord.PlayerNotifier do
 
   def reveal_players_hands(game_id, recipient_id, hands) do
     msg =
-      Enum.reduce(hands, fn hand, acc ->
-        "#{acc} #{user(hand.player_id)}: #{inspect(hand.dice)}\n"
+      Enum.reduce(hands, "", fn player_hand, acc ->
+        "#{acc}#{user(player_hand.player_id)}: #{inspect(player_hand.hand.dice)}\n"
       end)
 
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),

@@ -1,5 +1,5 @@
 defmodule PerudoCord.Games do
-  alias PerudoCord.{Game, GameRegistry, Supervisors.GameSupervisor}
+  alias PerudoCord.{Game, GameRegistry, Supervisors.GameSupervisor, InteractiveMessageHistory}
 
   def create(id, creator, game_name) do
     game = Game.create(id, creator, game_name)
@@ -51,6 +51,51 @@ defmodule PerudoCord.Games do
     |> case do
       {:ok, pid} -> GenServer.call(pid, {:remove_player, player_id})
       error -> error
+    end
+  end
+
+  def calza(message_id, player_id) do
+    case InteractiveMessageHistory.lookup(player_id) do
+      %{message_id: ^message_id, game_id: game_id} ->
+        game_id
+        |> GameRegistry.lookup_game()
+        |> case do
+          {:ok, pid} -> GenServer.call(pid, {:calza, player_id})
+          error -> error
+        end
+
+      _ ->
+        {:error, "Something bad happened"}
+    end
+  end
+
+  def dudo(message_id, player_id) do
+    case InteractiveMessageHistory.lookup(player_id) do
+      %{message_id: ^message_id, game_id: game_id} ->
+        game_id
+        |> GameRegistry.lookup_game()
+        |> case do
+          {:ok, pid} -> GenServer.call(pid, {:dudo, player_id})
+          error -> error
+        end
+
+      _ ->
+        {:error, "Something bad happened"}
+    end
+  end
+
+  def outbid(message_id, player_id, bid) do
+    case InteractiveMessageHistory.lookup(player_id) do
+      %{message_id: ^message_id, game_id: game_id} ->
+        game_id
+        |> GameRegistry.lookup_game()
+        |> case do
+          {:ok, pid} -> GenServer.call(pid, {:outbid, player_id, bid})
+          error -> error
+        end
+
+      _ ->
+        {:error, "Something bad happened"}
     end
   end
 end

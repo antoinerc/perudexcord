@@ -11,6 +11,17 @@ defmodule PerudoCord.ExampleConsumer do
     Consumer.start_link(__MODULE__)
   end
 
+  def handle_event(
+        {:MESSAGE_CREATE,
+         %Nostrum.Struct.Message{
+           author: %Nostrum.Struct.User{id: user_id},
+           referenced_message: %Nostrum.Struct.Message{id: ref_message_id}
+         } = msg, _ws_state}
+      ) do
+    [_, count, dice] = parse_bid(msg.content)
+    Games.outbid(ref_message_id, user_id, {count, dice})
+  end
+
   def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
     message_content = OptionParser.split(msg.content)
 
@@ -99,6 +110,28 @@ defmodule PerudoCord.ExampleConsumer do
     end
   end
 
+  def handle_event(
+        {:MESSAGE_REACTION_ADD,
+         %Nostrum.Struct.Event.MessageReactionAdd{
+           message_id: message_id,
+           user_id: user_id,
+           emoji: %Nostrum.Struct.Emoji{name: "👌"}
+         }, _ws_state}
+      ) do
+    Games.calza(message_id, user_id)
+  end
+
+  def handle_event(
+        {:MESSAGE_REACTION_ADD,
+         %Nostrum.Struct.Event.MessageReactionAdd{
+           message_id: message_id,
+           user_id: user_id,
+           emoji: %Nostrum.Struct.Emoji{name: "👎"}
+         }, _ws_state}
+      ) do
+    Games.dudo(message_id, user_id)
+  end
+
   # Default event handler, if you don't include this, your consumer WILL crash if
   # you don't have a method definition for each event type.
   def handle_event(_event) do
@@ -143,10 +176,5 @@ defmodule PerudoCord.ExampleConsumer do
     )
   end
 
-  def start_game(game_id, players) do
-    Api.create_message(
-      game_id,
-      "Game #{%Nostrum.Struct.Channel{id: game_id}} is starting. Players: #{Enum.map(players, fn p -> "#{%Nostrum.Struct.User{id: p}}" end)}"
-    )
-  end
+  defp parse_bid(bid), do: Regex.run(~r/\[\s*(\d+)\s*,\s*(\d+)\s*]/, bid)
 end

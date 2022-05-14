@@ -52,5 +52,23 @@ defmodule PerudoCord.GameProcess do
     {:reply, state, state}
   end
 
+  @impl true
+  def handle_call({:calza, player_id}, _from, %Game{id: id} = state) do
+    Perudex.GameServer.move(id, player_id, :calza)
+    {:reply, state, state}
+  end
+
+  @impl true
+  def handle_call({:dudo, player_id}, _from, %Game{id: id} = state) do
+    Perudex.GameServer.move(id, player_id, :dudo)
+    {:reply, state, state}
+  end
+
+  @impl true
+  def handle_call({:outbid, player_id, bid}, _from, %Game{id: id} = state) do
+    Perudex.GameServer.move(id, player_id, {:outbid, bid})
+    {:reply, state, state}
+  end
+
   defp service_name(%Game{id: game_id}), do: PerudoCord.service_name(game_id)
 end
