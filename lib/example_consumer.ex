@@ -18,38 +18,58 @@ defmodule PerudoCord.ExampleConsumer do
            referenced_message: %Nostrum.Struct.Message{id: ref_message_id}
          } = msg, _ws_state}
       ) do
-    [_, count, dice] = parse_bid(msg.content)
+    [count, dice] = parse_bid(msg.content)
     Games.outbid(ref_message_id, user_id, {count, dice})
   end
 
-  def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
-    message_content = OptionParser.split(msg.content)
+  def handle_event(
+        {:MESSAGE_CREATE,
+         %Nostrum.Struct.Message{content: "!per" <> content, channel_id: channel_id, author: author} = msg,
+         _ws_state}
+      ) do
 
-    case hd(message_content) do
-      "!create" <> _ ->
-        with {:ok, channel} <- get_channel(msg.channel_id),
+    with {:ok, channel} <- get_channel(channel_id),
              true <- channel.type == 0,
-             {:ok, parsed_args} <-
-               parse_required_args(tl(message_content), [name: :string], n: :name),
+             [game_name | _] = OptionParser.split(content),
              {:ok, invitation} <-
-               create_game_invitation(msg.channel_id, msg, parsed_args[:name], %Member{
-                 user: msg.author
+               create_game_invitation(channel_id, msg, game_name, %Member{
+                 user: author
                }) do
-          Games.create(invitation.id, msg.author.id, parsed_args[:name])
+          Games.create(invitation.id, author.id, game_name)
         else
           {:error, :no_parsed_args} ->
             reply(
               msg,
-              "Please supply a name for your game with the --name (-n) argument.\n ex: !create -n my-test-game"
+              "Please supply a name for your game."
             )
 
           _ ->
             reply(msg, "Unable to create a game at the moment.")
         end
+    # case command do
+    #   "!per" <> _ ->
+    #     with {:ok, channel} <- get_channel(channel_id),
+    #          true <- channel.type == 0,
+    #          [game_name | _] <- potential_args,
+    #          {:ok, invitation} <-
+    #            create_game_invitation(channel_id, msg, game_name, %Member{
+    #              user: author
+    #            }) do
+    #       Games.create(invitation.id, author.id, game_name)
+    #     else
+    #       {:error, :no_parsed_args} ->
+    #         reply(
+    #           msg,
+    #           "Please supply a name for your game."
+    #         )
 
-      _ ->
-        :ignore
-    end
+    #       _ ->
+    #         reply(msg, "Unable to create a game at the moment.")
+    #     end
+
+    #   _ ->
+    #     :ignore
+    # end
   end
 
   def handle_event(
@@ -176,5 +196,8 @@ defmodule PerudoCord.ExampleConsumer do
     )
   end
 
-  defp parse_bid(bid), do: Regex.run(~r/\[\s*(\d+)\s*,\s*(\d+)\s*]/, bid)
+  defp parse_bid(bid) do
+    [_, count, dice] = Regex.run(~r/\[\s*(\d+)\s*,\s*(\d+)\s*]/, bid)
+    [String.to_integer(count), String.to_integer(dice)]
+  end
 end

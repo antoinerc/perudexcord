@@ -43,7 +43,7 @@ defmodule PerudoCord.GameProcess do
   end
 
   @impl true
-  def handle_call({:start, issued_by}, _from, %Game{creator_id: issued_by} = state) do
+  def handle_call({:start, _}, _from, state) do
     {:reply, {:error, :unauthorized}, state}
   end
 

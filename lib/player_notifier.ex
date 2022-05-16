@@ -112,7 +112,7 @@ defmodule PerudoCord.PlayerNotifier do
          %Game{game_name: name} <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "Player #{user(move_initiator)} in game #{name} called DUDO and was WRONG!"
+        "Player #{user(move_initiator)} in game #{name} called CALZA and was WRONG!"
       )
     end
   end
