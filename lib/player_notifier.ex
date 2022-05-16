@@ -9,10 +9,8 @@ defmodule PerudoCord.PlayerNotifier do
          %Game{game_name: name} <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "Illegal move for game #{name}!"
+        "Illegal move for game #{name}! Reply to the last message with a valid move."
       )
-
-      move(game_id, recipient_id)
     end
   end
 
@@ -21,10 +19,8 @@ defmodule PerudoCord.PlayerNotifier do
          %Game{game_name: name} <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "Invalid bet for game #{name}!"
+        "Invalid bet for game #{name}! Reply to the last message with a valid move."
       )
-
-      move(game_id, recipient_id)
     end
   end
 
@@ -48,13 +44,13 @@ defmodule PerudoCord.PlayerNotifier do
     end
   end
 
-  def move(game_id, recipient_id) do
+  def move(game_id, recipient_id, %Perudex.Hand{dice: dice}) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
          %Game{game_name: name} <- Games.get(game_id),
          {:ok, message} <-
            Api.create_message(
              dm_channel.id,
-             "It is your turn to play in game #{name}. Reply to this message with your new bid in the format [count, die] or react with either #{emoji("👎")} for Dudo or #{emoji("👌")} for Calza."
+             "It is your turn to play in game #{name}. Your current hand is #{inspect(dice)} \nReply to this message with your new bid in the format [count, die] or react with either #{emoji("👎")} for Dudo or #{emoji("👌")} for Calza."
            ) do
       InteractiveMessageHistory.insert(recipient_id, message.id, game_id)
     else
@@ -82,7 +78,7 @@ defmodule PerudoCord.PlayerNotifier do
          %Game{game_name: name} <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "The hands for the latest round of game #{name} were: \n #{msg}"
+        "The hands for the latest round of game #{name} were: \n#{msg}"
       )
     end
   end
