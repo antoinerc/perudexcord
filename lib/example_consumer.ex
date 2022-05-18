@@ -46,30 +46,6 @@ defmodule PerudoCord.ExampleConsumer do
           _ ->
             reply(msg, "Unable to create a game at the moment.")
         end
-    # case command do
-    #   "!per" <> _ ->
-    #     with {:ok, channel} <- get_channel(channel_id),
-    #          true <- channel.type == 0,
-    #          [game_name | _] <- potential_args,
-    #          {:ok, invitation} <-
-    #            create_game_invitation(channel_id, msg, game_name, %Member{
-    #              user: author
-    #            }) do
-    #       Games.create(invitation.id, author.id, game_name)
-    #     else
-    #       {:error, :no_parsed_args} ->
-    #         reply(
-    #           msg,
-    #           "Please supply a name for your game."
-    #         )
-
-    #       _ ->
-    #         reply(msg, "Unable to create a game at the moment.")
-    #     end
-
-    #   _ ->
-    #     :ignore
-    # end
   end
 
   def handle_event(
