@@ -1,8 +1,8 @@
-defmodule PerudoCordTest do
+defmodule PerudexCordTest do
   use ExUnit.Case
-  doctest PerudoCord
+  doctest PerudexCord
 
   test "greets the world" do
-    assert PerudoCord.hello() == :world
+    assert PerudexCord.hello() == :world
   end
 end

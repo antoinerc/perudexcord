@@ -1,4 +1,4 @@
-defmodule PerudoCord.Game do
+defmodule PerudexCord.Game do
   alias __MODULE__
 
   defstruct [
@@ -20,7 +20,7 @@ defmodule PerudoCord.Game do
   @type game_name :: String.t()
   @type discord_user_id :: any
 
-  @spec create(game_id, discord_user_id, game_name) :: PerudoCord.Game.t()
+  @spec create(game_id, discord_user_id, game_name) :: PerudexCord.Game.t()
   def create(id, creator_id, game_name) do
     %Game{
       id: id,
@@ -30,7 +30,7 @@ defmodule PerudoCord.Game do
     }
   end
 
-  @spec add_player(PerudoCord.Game.t(), discord_user_id) :: PerudoCord.Game.t()
+  @spec add_player(PerudexCord.Game.t(), discord_user_id) :: PerudexCord.Game.t()
   def add_player(%Game{players: players} = game, player_id) do
     case player_id not in players do
       true -> %Game{game | players: [player_id | players]}
@@ -38,7 +38,7 @@ defmodule PerudoCord.Game do
     end
   end
 
-  @spec remove_player(PerudoCord.Game.t(), discord_user_id) :: PerudoCord.Game.t()
+  @spec remove_player(PerudexCord.Game.t(), discord_user_id) :: PerudexCord.Game.t()
   def remove_player(%Game{creator_id: player_id} = game, player_id) do
     game
   end

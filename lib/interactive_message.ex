@@ -1,4 +1,4 @@
-defmodule PerudoCord.InteractiveMessage do
+defmodule PerudexCord.InteractiveMessage do
   alias __MODULE__
 
   defstruct [

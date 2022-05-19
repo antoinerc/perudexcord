@@ -1,11 +1,11 @@
-defmodule PerudoCord.ExampleConsumer do
+defmodule PerudexCord.ExampleConsumer do
   use Nostrum.Consumer
 
   alias Nostrum.Api
   alias Nostrum.Struct.Guild.Member
   alias Nostrum.Cache.ChannelCache
 
-  alias PerudoCord.{Games}
+  alias PerudexCord.{Games}
 
   def start_link do
     Consumer.start_link(__MODULE__)
@@ -130,7 +130,7 @@ defmodule PerudoCord.ExampleConsumer do
 
   # Default event handler, if you don't include this, your consumer WILL crash if
   # you don't have a method definition for each event type.
-  def handle_event(_event) do
+  def handle_event(event) do
     :noop
   end
 
@@ -151,13 +151,6 @@ defmodule PerudoCord.ExampleConsumer do
     )
   end
 
-  defp parse_required_args(args, required_args, aliases) do
-    case OptionParser.parse(args, strict: required_args, aliases: aliases) do
-      {[], _, _} -> {:error, :no_parsed_args}
-      {parsed_args, _, _} -> {:ok, parsed_args}
-    end
-  end
-
   defp create_game_invitation(
          channel_id,
          %Nostrum.Struct.Message{id: original_message_id},
@@ -173,7 +166,7 @@ defmodule PerudoCord.ExampleConsumer do
   end
 
   defp parse_bid(bid) do
-    [_, count, dice] = Regex.run(~r/\[\s*(\d+)\s*,\s*(\d+)\s*]/, bid)
+    [_, count, dice] = Regex.run(~r/\s*(\d+)\s*x\s*(\d+)\s*/, bid)
     [String.to_integer(count), String.to_integer(dice)]
   end
 end

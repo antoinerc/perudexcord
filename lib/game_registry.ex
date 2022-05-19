@@ -1,4 +1,4 @@
-defmodule PerudoCord.GameRegistry do
+defmodule PerudexCord.GameRegistry do
   @moduledoc """
   This module define the Registry to keep the game state in memory.
   """

@@ -1,7 +1,7 @@
-defmodule PerudoCord.Supervisors.GameSupervisor do
+defmodule PerudexCord.Supervisors.GameSupervisor do
   use DynamicSupervisor
 
-  alias PerudoCord.{Game, GameProcess}
+  alias PerudexCord.{Game, GameProcess}
 
   def start_link(opts) do
     DynamicSupervisor.start_link(__MODULE__, opts, name: __MODULE__)

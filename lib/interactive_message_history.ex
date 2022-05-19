@@ -1,7 +1,7 @@
-defmodule PerudoCord.InteractiveMessageHistory do
+defmodule PerudexCord.InteractiveMessageHistory do
   use GenServer, restart: :transient
 
-  alias PerudoCord.InteractiveMessage
+  alias PerudexCord.InteractiveMessage
 
   def start_link(_opts),
     do: GenServer.start_link(__MODULE__, %{}, name: __MODULE__)

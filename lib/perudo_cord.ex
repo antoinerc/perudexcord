@@ -1,21 +1,21 @@
-defmodule PerudoCord do
+defmodule PerudexCord do
   use Application
 
   @moduledoc """
-  Documentation for `PerudoCord`.
+  Documentation for `PerudexCord`.
   """
 
   def start(_type, _args) do
     children = [
-      PerudoCord.GameRegistry.child_spec(),
-      PerudoCord.Supervisors.ConsumerSupervisor,
-      PerudoCord.Supervisors.GameSupervisor,
-      PerudoCord.Supervisors.InteractiveMessageSupervisor
+      PerudexCord.GameRegistry.child_spec(),
+      PerudexCord.Supervisors.ConsumerSupervisor,
+      PerudexCord.Supervisors.GameSupervisor,
+      PerudexCord.Supervisors.InteractiveMessageSupervisor
     ]
 
     opts = [strategy: :one_for_one]
     Supervisor.start_link(children, opts)
   end
 
-  def service_name(service_id), do: {:via, Registry, {PerudoCord.GameRegistry, service_id}}
+  def service_name(service_id), do: {:via, Registry, {PerudexCord.GameRegistry, service_id}}
 end

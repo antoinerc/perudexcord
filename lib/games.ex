@@ -1,5 +1,5 @@
-defmodule PerudoCord.Games do
-  alias PerudoCord.{Game, GameRegistry, Supervisors.GameSupervisor, InteractiveMessageHistory}
+defmodule PerudexCord.Games do
+  alias PerudexCord.{Game, GameRegistry, Supervisors.GameSupervisor, InteractiveMessageHistory}
 
   def create(id, creator, game_name) do
     game = Game.create(id, creator, game_name)

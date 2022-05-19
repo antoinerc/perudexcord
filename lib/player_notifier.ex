@@ -1,8 +1,8 @@
-defmodule PerudoCord.PlayerNotifier do
+defmodule PerudexCord.PlayerNotifier do
   @behaviour Perudex.NotifierServer
 
   alias Nostrum.Api
-  alias PerudoCord.{Games, Game, InteractiveMessageHistory}
+  alias PerudexCord.{Games, Game, InteractiveMessageHistory}
 
   def illegal_move(game_id, recipient_id) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
@@ -50,7 +50,7 @@ defmodule PerudoCord.PlayerNotifier do
          {:ok, message} <-
            Api.create_message(
              dm_channel.id,
-             "It is your turn to play in game #{name}. Your current hand is #{inspect(dice)} \nReply to this message with your new bid in the format [count, die] or react with either #{emoji("👎")} for Dudo or #{emoji("👌")} for Calza."
+             "It is your turn to play in game #{name}. Your current hand is #{inspect(dice)} \nReply to this message with your new bid in the format count x die or react with either #{emoji("👎")} for Dudo or #{emoji("👌")} for Calza."
            ) do
       InteractiveMessageHistory.insert(recipient_id, message.id, game_id)
     else
@@ -78,7 +78,7 @@ defmodule PerudoCord.PlayerNotifier do
          %Game{game_name: name} <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "The hands for the latest round of game #{name} were: \n#{msg}There was #{count} x #{die}."
+        "The count was #{count} x #{die}\nThe hands for the latest round of game #{name} were: \n#{msg}"
       )
     end
   end

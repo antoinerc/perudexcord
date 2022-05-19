@@ -1,7 +1,7 @@
-defmodule PerudoCord.GameProcess do
+defmodule PerudexCord.GameProcess do
   use GenServer, restart: :transient
 
-  alias PerudoCord.{Game, PlayerNotifier}
+  alias PerudexCord.{Game, PlayerNotifier}
   alias Perudex.Supervisors.MainSupervisor
 
   def start_link(%Game{} = game),
@@ -70,5 +70,5 @@ defmodule PerudoCord.GameProcess do
     {:reply, state, state}
   end
 
-  defp service_name(%Game{id: game_id}), do: PerudoCord.service_name(game_id)
+  defp service_name(%Game{id: game_id}), do: PerudexCord.service_name(game_id)
 end
