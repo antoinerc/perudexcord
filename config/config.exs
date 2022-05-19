@@ -8,5 +8,6 @@ config :nostrum,
     :guild_messages,
     :guild_message_reactions,
     :direct_messages,
-    :direct_message_reactions
+    :direct_message_reactions,
+    :message_content
   ]

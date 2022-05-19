@@ -1,9 +1,9 @@
-defmodule PerudoCord.MixProject do
+defmodule PerudexCord.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :perudocord,
+      app: :perudexcord,
       version: "0.1.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
@@ -15,14 +15,14 @@ defmodule PerudoCord.MixProject do
   def application do
     [
       extra_applications: [:logger, :crypto],
-      mod: {PerudoCord, []}
+      mod: {PerudexCord, []}
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nostrum, "~> 0.5.1"},
+      {:nostrum, git: "https://github.com/Kraigie/nostrum"},
       {:perudex, "~> 0.6.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:uuid, "~> 1.1"}
