@@ -11,3 +11,10 @@ config :nostrum,
     :direct_message_reactions,
     :message_content
   ]
+
+config :logger,
+  backends: [:console, {LoggerFileBackend, :log}]
+
+config :logger, :log, 
+  path: "/tmp/perudexcord_logs.log",
+  level: :notice
