@@ -25,7 +25,8 @@ defmodule PerudexCord.MixProject do
       {:nostrum, git: "https://github.com/Kraigie/nostrum"},
       {:perudex, "~> 0.6.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:uuid, "~> 1.1"}
+      {:uuid, "~> 1.1"},
+      {:logger_file_backend, "~>0.0.12"}
     ]
   end
 end
