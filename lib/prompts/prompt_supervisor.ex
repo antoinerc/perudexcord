@@ -1,4 +1,4 @@
-defmodule PerudexCord.Supervisors.InteractiveMessageSupervisor do
+defmodule PerudexCord.Prompts.PromptSupervisor do
   use Supervisor
 
   def start_link(opts) do
@@ -8,7 +8,7 @@ defmodule PerudexCord.Supervisors.InteractiveMessageSupervisor do
   @impl true
   def init(_opts) do
     children = [
-      PerudexCord.InteractiveMessageHistory
+      PerudexCord.Prompts.PromptProcess
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

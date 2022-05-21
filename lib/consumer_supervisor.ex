@@ -1,4 +1,4 @@
-defmodule PerudexCord.Supervisors.ConsumerSupervisor do
+defmodule PerudexCord.ConsumerSupervisor do
   use Supervisor
 
   def start_link(args) do
@@ -7,7 +7,7 @@ defmodule PerudexCord.Supervisors.ConsumerSupervisor do
 
   @impl true
   def init(_init_arg) do
-    children = [PerudexCord.ExampleConsumer]
+    children = [PerudexCord.DiscordConsumer]
 
     Supervisor.init(children, strategy: :one_for_one)
   end

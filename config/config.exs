@@ -15,6 +15,6 @@ config :nostrum,
 config :logger,
   backends: [:console, {LoggerFileBackend, :log}]
 
-config :logger, :log, 
+config :logger, :log,
   path: "/tmp/perudexcord_logs.log",
   level: :notice

@@ -1,5 +1,6 @@
 defmodule PerudexCord.Games do
-  alias PerudexCord.{Game, GameRegistry, Supervisors.GameSupervisor, InteractiveMessageHistory}
+  alias PerudexCord.Games.{Game, GameRegistry, GameSupervisor}
+  alias PerudexCord.Prompts.PromptProcess
 
   def create(id, creator, game_name) do
     game = Game.create(id, creator, game_name)
@@ -55,7 +56,7 @@ defmodule PerudexCord.Games do
   end
 
   def calza(message_id, player_id) do
-    case InteractiveMessageHistory.lookup(player_id) do
+    case PromptProcess.lookup(player_id) do
       %{message_id: ^message_id, game_id: game_id} ->
         game_id
         |> GameRegistry.lookup_game()
@@ -70,7 +71,7 @@ defmodule PerudexCord.Games do
   end
 
   def dudo(message_id, player_id) do
-    case InteractiveMessageHistory.lookup(player_id) do
+    case PromptProcess.lookup(player_id) do
       %{message_id: ^message_id, game_id: game_id} ->
         game_id
         |> GameRegistry.lookup_game()
@@ -85,7 +86,7 @@ defmodule PerudexCord.Games do
   end
 
   def outbid(message_id, player_id, bid) do
-    case InteractiveMessageHistory.lookup(player_id) do
+    case PromptProcess.lookup(player_id) do
       %{message_id: ^message_id, game_id: game_id} ->
         game_id
         |> GameRegistry.lookup_game()
