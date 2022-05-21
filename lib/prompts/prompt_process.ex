@@ -1,7 +1,7 @@
-defmodule PerudexCord.InteractiveMessageHistory do
+defmodule PerudexCord.Prompts.PromptProcess do
   use GenServer, restart: :transient
 
-  alias PerudexCord.InteractiveMessage
+  alias PerudexCord.Prompts.Prompt
 
   def start_link(_opts),
     do: GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -24,8 +24,7 @@ defmodule PerudexCord.InteractiveMessageHistory do
 
   @impl true
   def handle_call({:insert, player_id, message_id, game_id}, _from, state) do
-    new_state =
-      Map.put(state, player_id, %InteractiveMessage{message_id: message_id, game_id: game_id})
+    new_state = Map.put(state, player_id, %Prompt{message_id: message_id, game_id: game_id})
 
     {:reply, new_state[player_id], new_state}
   end

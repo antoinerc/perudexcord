@@ -1,8 +1,8 @@
 defmodule GameTest do
   use ExUnit.Case
-  doctest PerudexCord.Game
+  doctest PerudexCord.Games.Game
 
-  alias PerudexCord.Game
+  alias PerudexCord.Games.Game
 
   test "create/3 returns an initialized struct" do
     assert %Game{id: :a, creator_id: :first, game_name: "name"} = valid_game()

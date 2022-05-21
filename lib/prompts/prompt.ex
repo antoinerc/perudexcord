@@ -1,4 +1,4 @@
-defmodule PerudexCord.InteractiveMessage do
+defmodule PerudexCord.Prompts.Prompt do
   alias __MODULE__
 
   defstruct [
@@ -6,7 +6,7 @@ defmodule PerudexCord.InteractiveMessage do
     :game_id
   ]
 
-  @type t :: %InteractiveMessage{
+  @type t :: %Prompt{
           message_id: message_id,
           game_id: game_id
         }

@@ -1,4 +1,4 @@
-defmodule PerudexCord.ExampleConsumer do
+defmodule PerudexCord.DiscordConsumer do
   use Nostrum.Consumer
 
   alias Nostrum.Api

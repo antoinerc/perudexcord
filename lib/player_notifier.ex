@@ -2,7 +2,9 @@ defmodule PerudexCord.PlayerNotifier do
   @behaviour Perudex.NotifierServer
 
   alias Nostrum.Api
-  alias PerudexCord.{Games, Game, InteractiveMessageHistory}
+  alias PerudexCord.Games
+  alias PerudexCord.Games.Game
+  alias PerudexCord.Prompts.PromptProcess
 
   def illegal_move(game_id, recipient_id) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
@@ -52,7 +54,7 @@ defmodule PerudexCord.PlayerNotifier do
              dm_channel.id,
              "It is your turn to play in game #{name}. Your current hand is #{inspect(dice)} \nReply to this message with your new bid in the format count x die or react with either #{emoji("👎")} for Dudo or #{emoji("👌")} for Calza."
            ) do
-      InteractiveMessageHistory.insert(recipient_id, message.id, game_id)
+      PromptProcess.insert(recipient_id, message.id, game_id)
     else
       error -> error
     end

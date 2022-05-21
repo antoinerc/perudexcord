@@ -1,4 +1,4 @@
-defmodule PerudexCord.Game do
+defmodule PerudexCord.Games.Game do
   @moduledoc """
   Functions to manipulate a Game struct
   """
@@ -30,8 +30,8 @@ defmodule PerudexCord.Game do
   Returns a `Game` struct
 
   ## Examples
-      iex> PerudexCord.Game.create(1, 123, "coolest-game")
-      %PerudexCord.Game{
+      iex> PerudexCord.Games.Game.create(1, 123, "coolest-game")
+      %PerudexCord.Games.Game{
         id: 1,
         creator_id: 123,
         game_name: "coolest-game",
@@ -54,12 +54,12 @@ defmodule PerudexCord.Game do
   Returns a `Game` struct with the updated list of players.
 
   ## Examples
-      iex> PerudexCord.Game.add_player(%PerudexCord.Game{players: [123]}, 345)
-      %PerudexCord.Game{
+      iex> PerudexCord.Games.Game.add_player(%PerudexCord.Games.Game{players: [123]}, 345)
+      %PerudexCord.Games.Game{
         players: [345, 123]
       }
   """
-  @spec add_player(PerudexCord.Game.t(), discord_user_id) :: PerudexCord.Game.t()
+  @spec add_player(PerudexCord.Game.t(), discord_user_id) :: PerudexCord.Games.Game.t()
   def add_player(%Game{players: players} = game, player_id) do
     if player_id not in players do
       %Game{game | players: [player_id | players]}
@@ -74,8 +74,8 @@ defmodule PerudexCord.Game do
   Returns a `Game` struct with the updated list of players.
 
   ## Examples
-      iex> PerudexCord.Game.remove_player(%PerudexCord.Game{players: [123, 345]}, 345)
-      %PerudexCord.Game{
+      iex> PerudexCord.Games.Game.remove_player(%PerudexCord.Games.Game{players: [123, 345]}, 345)
+      %PerudexCord.Games.Game{
         players: [123]
       }
   """
