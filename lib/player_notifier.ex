@@ -5,6 +5,7 @@ defmodule PerudexCord.PlayerNotifier do
   alias PerudexCord.Games
   alias PerudexCord.Games.Game
   alias PerudexCord.Prompts.PromptProcess
+  alias PerudexCord.DiscordCmdTokens
 
   def illegal_move(game_id, recipient_id) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
@@ -52,7 +53,7 @@ defmodule PerudexCord.PlayerNotifier do
          {:ok, message} <-
            Api.create_message(
              dm_channel.id,
-             "It is your turn to play in game #{name}. Your current hand is #{inspect(dice)} \nReply to this message with your new bid in the format count x die or react with either #{emoji("👎")} for Dudo or #{emoji("👌")} for Calza."
+             "It is your turn to play in game #{name}. Your current hand is #{inspect(dice)} \nReply to this message with your new bid in the format count x die or react with either #{emoji(DiscordCmdTokens.dudo_reaction())} for Dudo or #{emoji(DiscordCmdTokens.calza_reaction())} for Calza."
            ) do
       PromptProcess.insert(recipient_id, message.id, game_id)
     else
@@ -150,7 +151,7 @@ defmodule PerudexCord.PlayerNotifier do
          %Game{game_name: name} <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "#{emoji("🏆")} Congratulation on WINNING game #{name} #{emoji("🏆")}"
+        "#{emoji(DiscordCmdTokens.congratulations_reaction())} Congratulations on WINNING game #{name} #{emoji(DiscordCmdTokens.congratulations_reaction())}"
       )
     end
   end
@@ -160,7 +161,7 @@ defmodule PerudexCord.PlayerNotifier do
          %Game{game_name: name} <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "#{emoji("🏆")} Player #{user(winner_id)} has WON game #{name} #{emoji("🏆")}"
+        "#{emoji(DiscordCmdTokens.congratulations_reaction())} Player #{user(winner_id)} has WON game #{name} #{emoji(DiscordCmdTokens.congratulations_reaction())}"
       )
     end
   end
