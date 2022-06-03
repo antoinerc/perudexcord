@@ -186,6 +186,16 @@ defmodule PerudexCord.PlayerNotifier do
     end
   end
 
+  def next_player(game_id, recipient_id, next_player_id) do
+    with {:ok, dm_channel} <- Api.create_dm(recipient_id),
+         %Game{game_name: name} <- Games.get(game_id) do
+      Api.create_message(
+        dm_channel.id,
+        "It is #{user(next_player_id)} turn to play in game #{name}"
+      )
+    end
+  end
+
   def player_spec(game_id, recipient_id),
     do: %{id: recipient_id, callback_mod: __MODULE__, callback_arg: game_id}
 
