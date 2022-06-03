@@ -73,8 +73,8 @@ defmodule PerudexCord.PlayerNotifier do
 
   def reveal_players_hands(game_id, recipient_id, hands, {count, die}) do
     msg =
-      Enum.reduce(hands, "", fn player_hand, acc ->
-        "#{acc}#{user(player_hand.player_id)}: #{inspect(player_hand.hand.dice)}\n"
+      Enum.reduce(hands, "", fn {player_id, player_hand}, acc ->
+        "#{acc}#{user(player_id)}: #{inspect(player_hand.dice)}\n"
       end)
 
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
@@ -162,6 +162,26 @@ defmodule PerudexCord.PlayerNotifier do
       Api.create_message(
         dm_channel.id,
         "#{emoji(DiscordCmdTokens.congratulations_reaction())} Player #{user(winner_id)} has WON game #{name} #{emoji(DiscordCmdTokens.congratulations_reaction())}"
+      )
+    end
+  end
+
+  def phase_change(game_id, recipient_id, :palifico) do
+    with {:ok, dm_channel} <- Api.create_dm(recipient_id),
+         %Game{game_name: name} <- Games.get(game_id) do
+      Api.create_message(
+        dm_channel.id,
+        "Game #{name} is entering PALIFICO phase. During a Palifico round, 1 does not count as wildcards and the value cannot be changed once set at the start of the round, only the count can be increased."
+      )
+    end
+  end
+
+  def phase_change(game_id, recipient_id, :normal) do
+    with {:ok, dm_channel} <- Api.create_dm(recipient_id),
+         %Game{game_name: name} <- Games.get(game_id) do
+      Api.create_message(
+        dm_channel.id,
+        "Game #{name} is returning to NORMAL phase"
       )
     end
   end

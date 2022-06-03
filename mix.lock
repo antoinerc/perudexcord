@@ -15,7 +15,7 @@
   "logger_file_backend": {:hex, :logger_file_backend, "0.0.13", "df07b14970e9ac1f57362985d76e6f24e3e1ab05c248055b7d223976881977c2", [:mix], [], "hexpm", "71a453a7e6e899ae4549fb147b1c6621f4233f8f48f58ca10a64ec67b6c50018"},
   "mime": {:hex, :mime, "2.0.2", "0b9e1a4c840eafb68d820b0e2158ef5c49385d17fb36855ac6e7e087d4b1dcc5", [:mix], [], "hexpm", "e6a3f76b4c277739e36c2e21a2c640778ba4c3846189d5ab19f97f126df5f9b7"},
   "nostrum": {:git, "https://github.com/Kraigie/nostrum", "05fa22ab70ad9f6b356fc1a421cca0c5b90fa1bb", []},
-  "perudex": {:hex, :perudex, "0.6.0", "5e00cf679fba8407e8a2be3fde89fa0cecd99fb0272b3f6ac8fdd1a91cecd679", [:mix], [], "hexpm", "fdb380ca2902be496def8c9e7fdb67e2ea72d59635f0e7243b8ad615817c0f74"},
+  "perudex": {:hex, :perudex, "0.7.0", "11b25af4b40158f5da02222d2cf7f67f7872013dd5fb1b7df41a7459b4050d73", [:mix], [], "hexpm", "2cc09d81a8bfab77e3ea276b4786538a49b057b2676d9ef53e770c5b05e25885"},
   "poly1305": {:hex, :poly1305, "1.0.3", "9ec6b5b3b96d96b15d4f2b8a3629aad2a2f5fe82f4ea0f13e5a3512737af4ee7", [:mix], [{:chacha20, "~> 1.0", [hex: :chacha20, repo: "hexpm", optional: false]}, {:equivalex, "~> 1.0", [hex: :equivalex, repo: "hexpm", optional: false]}], "hexpm", "fbe549d59e74e7cde680e7ae6baf7fe2b5f9053a84c1b5c866f703d0651d6b22"},
   "salsa20": {:hex, :salsa20, "1.0.3", "fb900fc9b26b713a98618f3c6d6b6c35a5514477c6047caca8d03f3a70175ab0", [:mix], [], "hexpm", "91cbfa537f369d074a79f926f36a6c2ac24fba12cbadcb23aa04a759282887fe"},
   "uuid": {:hex, :uuid, "1.1.8", "e22fc04499de0de3ed1116b770c7737779f226ceefa0badb3592e64d5cfb4eb9", [:mix], [], "hexpm", "c790593b4c3b601f5dc2378baae7efaf5b3d73c4c6456ba85759905be792f2ac"},
