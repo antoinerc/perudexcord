@@ -54,6 +54,12 @@ defmodule PerudexCord.Games.GameProcess do
   end
 
   @impl true
+  def handle_call({:change_phase, phase}, _from, %Game{} = state) do
+    new_state = Game.change_phase(state, phase)
+    {:reply, new_state, new_state}
+  end
+
+  @impl true
   def handle_call({:calza, player_id}, _from, %Game{id: id} = state) do
     Perudex.GameServer.move(id, player_id, :calza)
     {:reply, state, state}

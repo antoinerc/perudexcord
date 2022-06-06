@@ -55,6 +55,15 @@ defmodule PerudexCord.Games do
     end
   end
 
+  def change_phase(game_id, phase) do
+    game_id
+    |> GameRegistry.lookup_game()
+    |> case do
+      {:ok, pid} -> GenServer.call(pid, {:change_phase, phase})
+      error -> error
+    end
+  end
+
   def calza(message_id, player_id) do
     case PromptProcess.lookup(player_id) do
       %{message_id: ^message_id, game_id: game_id} ->

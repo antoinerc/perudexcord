@@ -9,51 +9,51 @@ defmodule PerudexCord.PlayerNotifier do
 
   def illegal_move(game_id, recipient_id) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "Illegal move for game #{name}! Reply to the last message with a valid move."
+        "#{prefix(game)} Illegal move! Reply to the last message with a valid move."
       )
     end
   end
 
   def invalid_bid(game_id, recipient_id) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "Invalid bet for game #{name}! Reply to the last message with a valid move."
+        "#{prefix(game)} Invalid bet! Reply to the last message with a valid move."
       )
     end
   end
 
   def loser(game_id, recipient_id, loser_id) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "Player #{user(loser_id)} has been eliminated from game #{name}!"
+        "#{prefix(game)} #{user(loser_id)} has been eliminated!"
       )
     end
   end
 
   def unauthorized_move(game_id, recipient_id) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "It is not your turn to play in game #{name}!"
+        "#{prefix(game)} It is not your turn to play"
       )
     end
   end
 
   def move(game_id, recipient_id, %Perudex.Hand{dice: dice}) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id),
+         game <- Games.get(game_id),
          {:ok, message} <-
            Api.create_message(
              dm_channel.id,
-             "It is your turn to play in game #{name}. Your current hand is #{inspect(dice)} \nReply to this message with your new bid in the format count x die or react with either #{emoji(DiscordCmdTokens.dudo_reaction())} for Dudo or #{emoji(DiscordCmdTokens.calza_reaction())} for Calza."
+             "#{prefix(game)} It is your turn to play. Your hand is **#{inspect(dice)}** \nReply to this message with your new bid in the format count x die or react with either #{emoji(DiscordCmdTokens.dudo_reaction())} for Dudo or #{emoji(DiscordCmdTokens.calza_reaction())} for Calza."
            ) do
       PromptProcess.insert(recipient_id, message.id, game_id)
     else
@@ -63,10 +63,10 @@ defmodule PerudexCord.PlayerNotifier do
 
   def new_hand(game_id, recipient_id, %Perudex.Hand{dice: dice}) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "Your new hand for game #{name} is #{inspect(dice)}"
+        "#{prefix(game)} Your new hand is **#{inspect(dice)}**"
       )
     end
   end
@@ -78,120 +78,108 @@ defmodule PerudexCord.PlayerNotifier do
       end)
 
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "The count was #{count} x #{die}\nThe hands for the latest round of game #{name} were: \n#{msg}"
+        "#{prefix(game)} The count was **#{count} x #{die}**.\nThe hands for the latest round were: \n#{msg}"
       )
     end
   end
 
   def start_game(game_id, recipient_id, participating_players) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "Game #{name} has started! Players: #{Enum.map(participating_players, fn p -> "#{user(p)}" end)}"
+        "#{prefix(game)} Game has started! Players: #{Enum.map(participating_players, fn p -> "#{user(p)}" end)}"
       )
     end
   end
 
-  def last_move(game_id, recipient_id, move_initiator, {:calza, true}) do
-    with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
-      Api.create_message(
-        dm_channel.id,
-        "Player #{user(move_initiator)} in game #{name} called CALZA and was RIGHT!"
-      )
+  def last_move(game_id, move_initiator, move_initiator, move) do
+    with {:ok, dm_channel} <- Api.create_dm(move_initiator),
+         game <- Games.get(game_id) do
+      case move do
+        {:outbid, {count, value}} ->
+          Api.create_message(
+            dm_channel.id,
+            "#{prefix(game)} You **raised** the bid to **#{count} x #{value}**"
+          )
+
+        other_move ->
+          Api.create_message(
+            dm_channel.id,
+            "#{prefix(game)} You called #{format_own_move(other_move)}"
+          )
+      end
     end
   end
 
-  def last_move(game_id, recipient_id, move_initiator, {:calza, false}) do
+  def last_move(game_id, recipient_id, move_initiator, move) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
-      Api.create_message(
-        dm_channel.id,
-        "Player #{user(move_initiator)} in game #{name} called CALZA and was WRONG!"
-      )
-    end
-  end
+         game <- Games.get(game_id) do
+      case move do
+        {:outbid, {count, value}} ->
+          Api.create_message(
+            dm_channel.id,
+            "#{prefix(game)} #{user(move_initiator)} has **raised** the bid to **#{count} x #{value}**"
+          )
 
-  def last_move(game_id, recipient_id, move_initiator, {:dudo, true}) do
-    with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
-      Api.create_message(
-        dm_channel.id,
-        "Player #{user(move_initiator)} in game #{name} called DUDO and was RIGHT!"
-      )
-    end
-  end
-
-  def last_move(game_id, recipient_id, move_initiator, {:dudo, false}) do
-    with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
-      Api.create_message(
-        dm_channel.id,
-        "Player #{user(move_initiator)} in game #{name} called DUDO and was WRONG!"
-      )
-    end
-  end
-
-  def last_move(game_id, recipient_id, move_initiator, {:outbid, {count, die}}) do
-    with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
-      Api.create_message(
-        dm_channel.id,
-        "Player #{user(move_initiator)} in game #{name} has raised the bid to #{count} x #{die}!"
-      )
+        other_move ->
+          Api.create_message(
+            dm_channel.id,
+            "#{prefix(game)} #{user(move_initiator)} called #{format_move(other_move)}"
+          )
+      end
     end
   end
 
   def winner(game_id, winner_id, winner_id) do
     with {:ok, dm_channel} <- Api.create_dm(winner_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "#{emoji(DiscordCmdTokens.congratulations_reaction())} Congratulations on WINNING game #{name} #{emoji(DiscordCmdTokens.congratulations_reaction())}"
+        "#{prefix(game)} #{emoji(DiscordCmdTokens.congratulations_reaction())} Congratulations on WINNING #{emoji(DiscordCmdTokens.congratulations_reaction())}"
       )
     end
   end
 
   def winner(game_id, recipient_id, winner_id) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "#{emoji(DiscordCmdTokens.congratulations_reaction())} Player #{user(winner_id)} has WON game #{name} #{emoji(DiscordCmdTokens.congratulations_reaction())}"
+        "#{prefix(game)} #{emoji(DiscordCmdTokens.congratulations_reaction())} #{user(winner_id)} has WON #{emoji(DiscordCmdTokens.congratulations_reaction())}"
       )
     end
   end
 
   def phase_change(game_id, recipient_id, :palifico) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.change_phase(game_id, :palifico) do
       Api.create_message(
         dm_channel.id,
-        "Game #{name} is entering PALIFICO phase. During a Palifico round, 1 does not count as wildcards and the value cannot be changed once set at the start of the round, only the count can be increased."
+        "#{prefix(game)} Switching to **PALIFICO** phase. During a Palifico round, 1 does not count as wildcards and the value cannot be changed once set at the start of the round, only the count can be increased"
       )
     end
   end
 
   def phase_change(game_id, recipient_id, :normal) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.change_phase(game_id, :palifico) do
       Api.create_message(
         dm_channel.id,
-        "Game #{name} is returning to NORMAL phase"
+        "#{prefix(game)} Switching to **NORMAL** phase"
       )
     end
   end
 
   def next_player(game_id, recipient_id, next_player_id) do
     with {:ok, dm_channel} <- Api.create_dm(recipient_id),
-         %Game{game_name: name} <- Games.get(game_id) do
+         game <- Games.get(game_id) do
       Api.create_message(
         dm_channel.id,
-        "It is #{user(next_player_id)} turn to play in game #{name}"
+        "#{prefix(game)} #{user(next_player_id)} is now playing"
       )
     end
   end
@@ -201,4 +189,10 @@ defmodule PerudexCord.PlayerNotifier do
 
   defp user(id), do: %Nostrum.Struct.User{id: id}
   defp emoji(emoji), do: %Nostrum.Struct.Emoji{name: emoji}
+  defp prefix(%Game{game_name: name, phase: :normal}), do: "[#{name}][NL]"
+  defp prefix(%Game{game_name: name, phase: :palifico}), do: "[#{name}][PF]"
+  defp format_own_move({move, true}), do: "**#{move}** and were **right**"
+  defp format_own_move({move, false}), do: "**#{move}** and were **wrong**"
+  defp format_move({move, true}), do: "**#{move}** and was **right**"
+  defp format_move({move, false}), do: "**#{move}** and was **wrong**"
 end
