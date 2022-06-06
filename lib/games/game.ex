@@ -9,20 +9,23 @@ defmodule PerudexCord.Games.Game do
     :id,
     :game_name,
     :creator_id,
-    :players
+    :players,
+    phase: :normal
   ]
 
   @type t :: %Game{
           id: game_id,
           game_name: game_name,
           creator_id: discord_user_id,
-          players: [discord_user_id]
+          players: [discord_user_id],
+          phase: phase
         }
 
   @type game_id :: any
   @type message_id :: any
   @type game_name :: String.t()
   @type discord_user_id :: any
+  @type phase :: :normal | :palifico
 
   @doc """
   Initialize a new `Game` struct with a supplied `game_id`, `creator_id` and `game_name`
@@ -61,10 +64,10 @@ defmodule PerudexCord.Games.Game do
   """
   @spec add_player(PerudexCord.Game.t(), discord_user_id) :: PerudexCord.Games.Game.t()
   def add_player(%Game{players: players} = game, player_id) do
-    if player_id not in players do
-      %Game{game | players: [player_id | players]}
-    else
+    if player_id in players do
       game
+    else
+      %Game{game | players: [player_id | players]}
     end
   end
 
@@ -86,5 +89,13 @@ defmodule PerudexCord.Games.Game do
 
   def remove_player(%Game{players: players} = game, player_id) do
     %Game{game | players: List.delete(players, player_id)}
+  end
+
+  def change_phase(%Game{phase: phase} = game, phase) do
+    game
+  end
+
+  def change_phase(%Game{} = game, phase) do
+    %Game{game | phase: phase}
   end
 end
